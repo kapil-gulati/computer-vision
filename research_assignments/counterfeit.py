@@ -53,12 +53,7 @@ def scale(image, fx, fy):
     scaled = cv.resize(image, None, fx=fx, fy=fy, interpolation=cv.INTER_LINEAR)
     return scaled
 
-if __name__ == "__main__":
-    base_path = os.path.dirname(os.path.abspath(__file__))
-    image_path = os.path.join(base_path, 'shutterstock.jpg')
-
-    #transform the image
-    img = cv.imread(image_path, cv.IMREAD_COLOR)
+def run_transformations(img, base_path):
     translated_img = translate(img, -7, -10)
     rotated_img = rotate(translated_img, -2)
     scaled_img = scale(rotated_img, 2, 2)
@@ -69,3 +64,11 @@ if __name__ == "__main__":
     cv.imwrite(os.path.join(base_path, 'transformed_image_1.jpg'), normalized_img)
     normalized_img = cv.normalize(cropped_img_2, None, alpha=0, beta=255, norm_type=cv.NORM_MINMAX)
     cv.imwrite(os.path.join(base_path, 'transformed_image_2.jpg'), normalized_img)
+
+if __name__ == "__main__":
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(base_path, 'banknote.jpg')
+
+    #transform the image
+    img = cv.imread(image_path, cv.IMREAD_COLOR)
+    run_transformations(img, base_path)
