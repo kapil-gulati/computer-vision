@@ -2,11 +2,12 @@ import cv2 as cv
 import sys
 import os
 
-FACE_CASCADE_XML = 'haarcascade_frontalface_alt.xml'
-EYE_CASCADE_XML = 'haarcascade_eye_tree_eyeglasses.xml'
-IMAGE_FILE = 'kapil_headshot.png'
+FACE_CASCADE_XML = 'haarcascade_frontalface_default.xml'
+EYE_CASCADE_XML_WITH_GLASSES = 'haarcascade_eye_tree_eyeglasses.xml'
+EYE_CASCADE_XML_WITHOUT_GLASSES = 'haarcascade_eye.xml'
+DEFAULT_IMAGE_FILE = 'kapil_headshot.png'
 
-def main(img_file_name):
+def main(img_file_name='kapil_headshot.png', subject_has_glasses=False):
     # let's first figure out the base path
     base_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -17,8 +18,8 @@ def main(img_file_name):
         print(f"Using image file: {img_file_name}")
         cv_img = cv.imread(os.path.join(base_path, img_file_name))
     else:
-        print(f"Using default image file: {IMAGE_FILE}")
-        cv_img = cv.imread(os.path.join(base_path, IMAGE_FILE))
+        print(f"Using default image file: {DEFAULT_IMAGE_FILE}")
+        cv_img = cv.imread(os.path.join(base_path, DEFAULT_IMAGE_FILE))
 
     # verify image is loaded
     if cv_img is None:
@@ -27,13 +28,13 @@ def main(img_file_name):
 
     ####### load classifiers
 
-    #cascade classifier path
+    # load the default cascade classifier path
     face_cascade_classifier_path = os.path.join(base_path, FACE_CASCADE_XML)
 
-    # eye cascade classifier path
-    eye_cascade_classifier_path = os.path.join(base_path, EYE_CASCADE_XML)
+    # load appropriate eye cascade classifier path depending on whether subject has glasses or not
+    eye_cascade_classifier_path = os.path.join(base_path, EYE_CASCADE_XML_WITHOUT_GLASSES if not subject_has_glasses else EYE_CASCADE_XML_WITH_GLASSES)
 
-    # create the haar cascade classifier
+    # create the face cascade classifier
     face_cascade_classifier = cv.CascadeClassifier(face_cascade_classifier_path)
 
     # create the eye cascade classifier
@@ -64,7 +65,7 @@ def main(img_file_name):
     for (x, y, w, h) in faces:
         # draw circle around the faces
         cv.circle(cv_img, center = (x + w // 2, y + h // 2), radius = max(w, h) // 2, color = (0, 0, 255), thickness = 2)
-        cv.putText(cv_img, 'This is me!', (x+w//3, y), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv.LINE_AA)
+        cv.putText(img=cv_img, text='This is me!', org=(x, y), fontFace=cv.FONT_HERSHEY_SIMPLEX, fontScale=2, color=(255, 0, 0), thickness=2, lineType=cv.LINE_AA, bottomLeftOrigin=False)
 
     for (ex, ey, ew, eh) in eyes:
         # draw rectangle around the eyes
@@ -72,7 +73,7 @@ def main(img_file_name):
     
     cv.imshow('This is me', cv_img)
 
-    cv.waitKey(0)
+    cv.waitKey(2000) # wait for 2 seconds before closing the window
          
     # save the image as a copy
     saved_img_path = os.path.join(base_path, 'this_is_me.jpg')
@@ -85,9 +86,14 @@ def main(img_file_name):
     print("Image dimensions:", cv_img.shape)
 
 if __name__ == "__main__":
-    interactive_mode = None
+    file_name = DEFAULT_IMAGE_FILE
+    subject_has_glasses = True
     if len(sys.argv) > 1:
-        interactive_mode = sys.argv[1]
-        print(f"Script is running in {interactive_mode} mode.")
+        file_name = sys.argv[1]
+        print(f"Input image file name: {file_name}")
+    
+    if len(sys.argv) > 2:
+        subject_has_glasses = sys.argv[2].lower() == 'true'
+        print(f"The subject has glasses: {subject_has_glasses}")
 
-    main(interactive_mode)
+    main(file_name, subject_has_glasses)
