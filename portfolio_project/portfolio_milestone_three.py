@@ -46,7 +46,7 @@ def main(img_file_name='kapil_headshot.png', subject_has_glasses=False):
         return
     
     if eye_cascade_classifier.empty():
-        print(f"Error: Could not load eye classifier cascade. Please ensure the {EYE_CASCADE_XML} XML file is in the script directory.")
+        print(f"Error: Could not load eye classifier cascade. Please ensure the eye classifier XML file is in the script directory.")
         return
     
 
