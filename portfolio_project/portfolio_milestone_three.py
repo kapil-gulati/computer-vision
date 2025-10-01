@@ -76,7 +76,7 @@ def main(img_file_name='kapil_headshot.png', subject_has_glasses=False):
     cv.waitKey(2000) # wait for 2 seconds before closing the window
          
     # save the image as a copy
-    saved_img_path = os.path.join(base_path, 'this_is_me.jpg')
+    saved_img_path = os.path.join(base_path, f'output_{img_file_name}')
     cv.imwrite(saved_img_path, cv_img)
 
     cv.destroyAllWindows()
