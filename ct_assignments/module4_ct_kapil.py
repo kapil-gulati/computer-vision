@@ -12,9 +12,8 @@ BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 def plot_image(image_dict: dict[str, dict[str, np.ndarray]], save_path=None):
     # Setting the grid size, layout and title
     p_fig, ax = plt.subplots(3, 3)
-    p_fig.suptitle('Image Filtering Results', fontsize=10)
-    p_fig.subplots_adjust(hspace=0.4, wspace=0.4)
-
+   
+    p_fig.tight_layout(pad=0.5)
     
     for i, (k, d) in enumerate(image_dict.items()):
         print(f"Plotting results for {k}, index={i}")
@@ -81,7 +80,7 @@ def main(image_file, show=True, wait_time=2000):
         image = load_image(image_file)
        
         # define the sigma value (standard deviation for Gaussian)
-        sigma = 3.0
+        sigma = 0.5
         # define a kernel (not used in this implementation but can be extended)
         kernel_size = [(3,3), (5,5), (7,7)]
 
