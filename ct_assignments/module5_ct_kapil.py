@@ -8,65 +8,62 @@ import sys
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def main(image_file, show=True, wait_time=2000):
+def plot_and_compare(original, processed, processed_title, save_path):
+    fig, (axis_1, axis_2) = plt.subplots(nrows=1, ncols=2, figsize=(12, 6), sharex=True, sharey=True)
+    axis_1.imshow(original, cmap=plt.cm.gray)
+    axis_1.set_title('Original Lantent Fingerprint')
+    axis_1.set_axis_off()
+    axis_2.imshow(processed, cmap=plt.cm.gray)
+    axis_2.set_title(processed_title)
+    axis_2.set_axis_off()
+    plt.tight_layout()
+    plt.savefig(save_path)
+    
+
+
+def main(image_file, show=True, write_ind_file=False, wait_time=2000):
     try:
-        # read image from disk
-        img_grey = cv.imread(os.path.join(BASE_PATH, image_file))
+        # read image from disk as grayscale
+        img_grey = cv.imread(os.path.join(BASE_PATH, image_file), cv.IMREAD_GRAYSCALE)
         if img_grey is None:
             raise ValueError(f"Image not found or unable to load: {image_file}")
-        # Convert BGR to RGB for correct color representation in matplotlib
-        # image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
-       
+
         # show the original image
-        cv.imshow('Original Image', img_grey)
-        cv.waitKey(wait_time)
-
-        # Convert to grayscale
-        # img_gray = cv.cvtColor(image, cv.COLOR_RGB2GRAY)
-
-        cv.imwrite(os.path.join(BASE_PATH, 'original_image.png'), img_grey)
+        if show:
+            cv.imshow('Original Image', img_grey)
+            cv.waitKey(wait_time)
+        # cv.imwrite(os.path.join(BASE_PATH, 'original_image.png'), img_grey)
 
         # apply erosion
         kernel = np.ones((3,3),np.uint8)
         img_erosion = cv.erode(img_grey, kernel, iterations = 1)
         # save image to disk
-        cv.imwrite(os.path.join(BASE_PATH, 'eroded_image.png'), img_erosion)
+        if write_ind_file:
+            cv.imwrite(os.path.join(BASE_PATH, 'eroded_image.png'), img_erosion)
+        # plot and compare
+        plot_and_compare(img_grey, img_erosion, 'Eroded Lantent Fingerprint', save_path=os.path.join(BASE_PATH, 'eroded_image_comparison.png'))
 
         # apply dilation
         img_dilation = cv.dilate(img_grey, kernel, iterations = 1)
         # save image to disk
-        cv.imwrite(os.path.join(BASE_PATH, 'dilated_image.png'), img_dilation)
+        if write_ind_file:
+            cv.imwrite(os.path.join(BASE_PATH, 'dilated_image.png'), img_dilation)
+        # plot and compare
+        plot_and_compare(img_grey, img_dilation, 'Dilated Lantent Fingerprint', save_path=os.path.join(BASE_PATH, 'dilated_image_comparison.png'))
+
 
         # apply opening
-        img_opening = cv.morphologyEx(img_grey, cv.MORPH_OPEN, kernel)
-        cv.imwrite(os.path.join(BASE_PATH, 'opened_image.png'), img_opening)
+        img_opening = cv.morphologyEx(img_grey, cv.MORPH_OPEN, kernel, iterations=1)
+        if write_ind_file:
+            cv.imwrite(os.path.join(BASE_PATH, 'opened_image.png'), img_opening)
+        plot_and_compare(img_grey, img_opening, 'Opened Lantent Fingerprint', save_path=os.path.join(BASE_PATH, 'opened_image_comparison.png'))
 
 
         # apply closing
-        img_closing = cv.morphologyEx(img_grey, cv.MORPH_CLOSE, kernel)
-        cv.imwrite(os.path.join(BASE_PATH, 'closed_image.png'), img_closing)
-
-        # gradient
-        img_gradient = cv.morphologyEx(img_grey, cv.MORPH_GRADIENT, kernel)
-        cv.imwrite(os.path.join(BASE_PATH, 'gradient_image.png'), img_gradient)
-
-        # # plot all images and save to disk
-        # # Setting the grid size, layout and title
-        # p_fig, ax = plt.subplots(3, 2)
-        # p_fig.tight_layout(pad=0.5)
-
-        # for i, (k, img) in enumerate(image_dict.items()):
-        #     print(f"Plotting results for {k}, index={i}")
-        #     ax[i//2, i%2].imshow(img, cmap='gray')
-        #     ax[i//2, i%2].set_title(k, fontsize=8)
-        #     # hide ticks
-        #     ax[i//2, i%2].set_xticks([])
-        #     ax[i//2, i%2].set_yticks([])
-
-        # save_path = os.path.join(BASE_PATH, 'morphological_operations.png')
-        # plt.savefig(save_path)
-        # print(f"Saved morphological operations result to {save_path}")
-
+        img_closing = cv.morphologyEx(img_grey, cv.MORPH_CLOSE, kernel, iterations=1)
+        if write_ind_file:
+            cv.imwrite(os.path.join(BASE_PATH, 'closed_image.png'), img_closing)
+        plot_and_compare(img_grey, img_closing, 'Closed Lantent Fingerprint', save_path=os.path.join(BASE_PATH, 'closed_image_comparison.png'))
 
 
     except Exception as e:
